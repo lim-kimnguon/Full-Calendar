@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CalendarOptions, defineFullCalendarElement } from '@fullcalendar/web-component';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 
 defineFullCalendarElement();
 
@@ -18,14 +19,18 @@ export class AppComponent {
   ];
 
   calendarOptions: CalendarOptions = {
-    plugins: [dayGridPlugin],
+    plugins: [dayGridPlugin, timeGridPlugin],
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,dayGridWeek,dayGridDay'
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
     initialView: 'dayGridMonth',
     weekends: true,
+    eventTimeFormat: {
+      hour: 'numeric',
+      minute: '2-digit',
+    },
   };
 
   onClick() {
@@ -35,13 +40,12 @@ export class AppComponent {
       console.log(new Date(date! + 'T' + time));
     }
     this.users.map((item, index) => {
-      this.events.push({ id: `${index + 1}`, title: `Quiz: ${item.name}`, start: date});
+      this.events.push({ id: `${index + 1}`, title: `Quiz: ${item.name}`, start: date, allDay: false });
     })
 
     this.calendarOptions = {
       ...this.calendarOptions,
-      events: this.events,
-      weekends: false
+      events: this.events
     }
   }
 }
