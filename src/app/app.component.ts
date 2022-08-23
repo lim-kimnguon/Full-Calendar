@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CalendarOptions, defineFullCalendarElement } from '@fullcalendar/web-component';
-import listPlugin from '@fullcalendar/list';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import * as moment from 'moment';
 
 defineFullCalendarElement();
 
@@ -13,39 +15,46 @@ export class AppComponent {
   title = 'latest-calendar';
   events: any[] = [];
   users: any[] = [
-    { id: '1', name: 'test1', date: '2022-08-24'},
-    { id: '2', name: 'test2', date: '2022-08-28'}
+    { id: '1', name: 'test1', date: '2022-08-24' },
+    { id: '2', name: 'test2', date: '2022-08-30'}
   ];
 
   calendarOptions: CalendarOptions = {
-    plugins: [listPlugin],
+    plugins: [dayGridPlugin, timeGridPlugin],
     timeZone: 'Asia/Phnom_Penh',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'listMonth,listWeek,listDay'
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
-    initialView: 'listWeek',
+    initialView: 'timeGridWeek',
     weekends: true,
     eventTimeFormat: {
       hour: 'numeric',
       minute: '2-digit',
     },
+    events: [{
+
+    }]
   };
 
   onClick() {
     var date = prompt('Enter your date format(YYYY-MM-DD):');
     var time = prompt('Enter your time format(HH:MM:SS):');
-    if(!isNaN(Date.parse(date!))) {
-      console.log(new Date(date! + 'T' + time));
-    }
+    var startTime = new Date(Date.parse(date + ' ' + time));
+    var endTime = new Date(new Date(startTime).getTime() + 7200000);
+    console.log(this.changeFormat(startTime));
     this.users.map((item, index) => {
-      this.events.push({ id: `${index + 1}`, title: `Quiz: ${item.name}`, start: date, allDay: false });
+      this.events.push({ id: `${index + 1}`, title: `Quiz: ${item.name}`, start: this.changeFormat(startTime), end: this.changeFormat(endTime), allDay: false });
     })
 
     this.calendarOptions = {
       ...this.calendarOptions,
       events: this.events
     }
+  }
+
+  changeFormat(date: any): string {
+    return moment(date).format('YYYY-MM-DD HH:mm:ss');
   }
 }
