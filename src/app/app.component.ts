@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CalendarOptions, defineFullCalendarElement } from '@fullcalendar/web-component';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 
 defineFullCalendarElement();
 
@@ -19,13 +18,14 @@ export class AppComponent {
   ];
 
   calendarOptions: CalendarOptions = {
-    plugins: [dayGridPlugin, timeGridPlugin],
+    plugins: [listPlugin],
+    timeZone: 'Asia/Phnom_Penh',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      right: 'listMonth,listWeek,listDay'
     },
-    initialView: 'dayGridMonth',
+    initialView: 'listWeek',
     weekends: true,
     eventTimeFormat: {
       hour: 'numeric',
