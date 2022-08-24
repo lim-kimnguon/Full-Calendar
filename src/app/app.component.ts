@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CalendarOptions, defineFullCalendarElement } from '@fullcalendar/web-component';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import * as moment from 'moment';
+import { FullCalendar, FullCalendarService } from './service/full-calendar.service';
 
 defineFullCalendarElement();
 
@@ -11,7 +12,7 @@ defineFullCalendarElement();
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'latest-calendar';
   events: any[] = [];
   users: any[] = [
@@ -27,30 +28,57 @@ export class AppComponent {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
-    initialView: 'timeGridWeek',
+    initialView: 'dayGridMonth',
     weekends: true,
     eventTimeFormat: {
       hour: 'numeric',
       minute: '2-digit',
-    },
-    events: [{
-
-    }]
+    }
   };
 
+  constructor(private service: FullCalendarService) { }
+
+  ngOnInit() {
+    this.getQuizDate();
+  }
+
+  getQuizDate() {
+    this.service.getData().subscribe({
+      next: (data) => {
+        console.log(data);
+        data.map((item, index) => {
+          this.events.push({ id: `${index + 1}`, title: `${ item.title }`, start: `${ this.changeFormat(item.startDate) }`, end: `${ this.changeFormat(item.endDate) }`});
+        });
+        this.calendarOptions = {
+          ...this.calendarOptions,
+          events: this.events
+        }
+      }
+    });
+  }
+
   onClick() {
+    var title = prompt('Enter a title: ');
     var date = prompt('Enter your date format(YYYY-MM-DD):');
     var time = prompt('Enter your time format(HH:MM:SS):');
     var startTime = new Date(Date.parse(date + ' ' + time));
+    console.log(startTime);
     var endTime = new Date(new Date(startTime).getTime() + 7200000);
-    console.log(this.changeFormat(startTime));
-    this.users.map((item, index) => {
-      this.events.push({ id: `${index + 1}`, title: `Quiz: ${item.name}`, start: this.changeFormat(startTime), end: this.changeFormat(endTime), allDay: false });
-    })
-
-    this.calendarOptions = {
-      ...this.calendarOptions,
-      events: this.events
+    if(Object.prototype.toString.call(startTime) === "[object Date]") {
+      if(!isNaN(Date.parse(date + ' ' + time))) {
+        var formData = new FormData();
+        formData.append('title', title!);
+        formData.append('startDate', this.changeFormat(startTime));
+        formData.append('endDate', this.changeFormat(endTime));
+        this.service.setData(formData).subscribe({
+          next: () => {
+            alert('Success');
+            window.location.reload();
+          }
+        });
+      } else {
+        alert('error');
+      }
     }
   }
 
